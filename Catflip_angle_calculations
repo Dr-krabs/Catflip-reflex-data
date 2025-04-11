@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np
+
+# Example: DataFrame `df` should have columns: Track, Slice, X, Y
+
+# Separate body parts by track number (adjust as needed)
+head = df[df['Track'] == 0]
+front_paw = df[df['Track'] == 1]
+
+# Merge head and paw data by frame number (Slice)
+merged = pd.merge(head, front_paw, on='Slice', suffixes=('_head', '_front'))
+
+# Calculate delta X and Y (Y flipped because image Y increases downward)
+dx = merged['X_front'] - merged['X_head']
+dy = -(merged['Y_front'] - merged['Y_head'])  # Flip Y to make "up" positive
+
+# Calculate angle from horizontal axis in degrees
+merged['Angle_degrees'] = np.degrees(np.arctan2(dy, dx))
+
+# Optional: Normalize to [-180, 180] if needed
+merged['Angle_degrees'] = (merged['Angle_degrees'] + 180) % 360 - 180
+
+# View first few results
+print(merged[['Slice', 'Angle_degrees']].head())
